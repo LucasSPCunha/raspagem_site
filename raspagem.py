@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import pyshorteners
 
 # USER AGENT
 headers = {
@@ -30,6 +31,10 @@ while True:
     precos = site.find_all('span', class_='andes-money-amount__fraction')
     links = site.find_all('a', class_='poly-component__title')
 
+    #ENCURTAR LINK
+    s = pyshorteners.Shortener()
+    link_encurtado = s.tinyurl.short(links[0]['href'])
+
     # VERIFICAR SE HA MAIS RESULTADOS
     if not descricoes:
         print('Sem itens')
@@ -39,6 +44,6 @@ while True:
     for descricoes, precos, links in zip(descricoes, precos, links):
         print('\033[mProduto: ' + descricoes.get_text())
         print('\033[32mValor: R$' + precos.get_text())
-        print(f'\033[34mLink: {links.get('href')}\n' )
+        print(f'\033[34mLink: {link_encurtado}\n' )
     # INDEX DAS PAGINAS
     start += 47
