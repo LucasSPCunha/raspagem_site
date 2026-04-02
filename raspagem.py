@@ -18,32 +18,41 @@ url = f'https://lista.mercadolivre.com.br/{produto}_Desde_'
 # CONTAGEM
 start = 1
 
-# LOOP DE RASPAGEM
-while True:
-    url_final = url + str(start) + '_NoIndex_True'
+# NOME DO ARQUIVO DE SAÍDA
+nome_arquivo = 'links.txt'
 
-    #FAZER A REQUISIÇÃO
-    r = requests.get(url_final, headers=headers)
-    site = BeautifulSoup(r.content, 'html.parser')
+with open(nome_arquivo, 'a', encoding='utf-8') as arquivo:
 
-    # ENCONTRAR RESULTADOS
-    descricoes = site.find_all('h3', class_='poly-component__title-wrapper')
-    precos = site.find_all('span', class_='andes-money-amount__fraction')
-    links = site.find_all('a', class_='poly-component__title')
+    # LOOP DE RASPAGEM
+    while True:
+        url_final = url + str(start) + '_NoIndex_True'
 
-    #ENCURTAR LINK
-    s = pyshorteners.Shortener()
-    link_encurtado = s.tinyurl.short(links[0]['href'])
+        #FAZER A REQUISIÇÃO
+        r = requests.get(url_final, headers=headers)
+        site = BeautifulSoup(r.content, 'html.parser')
 
-    # VERIFICAR SE HA MAIS RESULTADOS
-    if not descricoes:
-        print('Sem itens')
-        break
+        # ENCONTRAR RESULTADOS
+        descricoes = site.find_all('h3', class_='poly-component__title-wrapper')
+        precos = site.find_all('span', class_='andes-money-amount__fraction')
+        links = site.find_all('a', class_='poly-component__title')
 
-    #CAPTURAR DADOS
-    for descricoes, precos, links in zip(descricoes, precos, links):
-        print('\033[mProduto: ' + descricoes.get_text())
-        print('\033[32mValor: R$' + precos.get_text())
-        print(f'\033[34mLink: {link_encurtado}\n' )
-    # INDEX DAS PAGINAS
-    start += 47
+        # VERIFICAR SE HA MAIS RESULTADOS
+        if not descricoes:
+            print('Sem itens')
+            break
+
+        #CAPTURAR DADOS
+        for descricoes, precos, links in zip(descricoes, precos, links):
+            link_url = links.get('href')
+            if 'click1' and 'click1' in link_url.lower():
+                continue
+
+            print('\033[mProduto: ' + descricoes.get_text())
+            print('\033[32mValor: R$' + precos.get_text())
+            print(f'\033[34mLink: {links.get('href')}\n' )
+
+            # ESCREVE NO ARQUIVO
+            arquivo.write(f'{links.get('href')}\n')
+
+        # INDEX DAS PAGINAS
+        start += 47
